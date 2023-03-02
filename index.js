@@ -17,6 +17,80 @@ const client = new MongoClient(uri, {
 });
 const run = async () => {
   try {
+    const userDataCollection = client.db("expense-db").collection("userData");
+    const expenseCollection = client
+      .db("expense-db")
+      .collection("expense-data");
+
+    app.put("/userData", async (req, res) => {
+      const userInfo = req.body;
+      const filter = {
+        name: userInfo?.name,
+        email: userInfo?.email,
+        balance: userInfo?.balance,
+      };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: userInfo?.name,
+          email: userInfo?.email,
+          balance: userInfo?.balance,
+        },
+      };
+      const result = await userDataCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.status(200).send(result);
+    });
+    app.put("/expenseInfo", async (req, res) => {
+      const spendinfo = req.body;
+      const filter = {
+        spend: spendinfo?.spend,
+        category: spendinfo?.categoryInfo,
+        email: spendinfo?.email,
+      };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          spend: spendinfo?.spend,
+          category: spendinfo?.categoryInfo,
+          email: spendinfo?.email,
+        },
+      };
+      const result = await expenseCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
+    app.get("/userInformation/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const result = await userDataCollection.findOne(filter);
+      res.send(result);
+    });
+    app.put("/upblnc/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const data = req.body;
+      console.log(data);
+      const filter = { email };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          balance: data.updatedbalance,
+        },
+      };
+      const result = await userDataCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
   } catch {
   } finally {
   }
